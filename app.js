@@ -24,25 +24,17 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/users", (req, res) => {
-  res.send(["Axel", "Aldana", "Nahuel", "Luis"]);
+  res.send(usuarios);
 });
 
 app.get("/api/users/:id", (req, res) => {
-  let user = usuarios.find((u) => u.id === parseInt(req.params.id));
+  let user = existeUsuario(req.params.id);
   if (!user) res.status(404).send("Usuario no encontrado");
   res.send(user);
 });
 
-app.post("/api/users", (req, res) => {
-  //insertar nombre y id en el arreglo
-
-  //validacion con joi
-  const schema = Joi.object({
-    name: Joi.string().min(3).max(30).required(),
-  });
-  const { error, value } = schema.validate({
-    name: req.body.name,
-  });
+app.post("/api/users", (req, res) => {  //insertar nombre y id en el arreglo
+  const { error, value } = validarNombre(req.body.name);
   if (!error) {
     const user = {
       id: usuarios.length + 1, //cantidad de elementos + 1
@@ -53,14 +45,42 @@ app.post("/api/users", (req, res) => {
   } else {
       res.status(400).send(error.details[0].message);
   }
+});
 
-  // if(!req.body.name || req.body.name.length < 3 ) {
-  //     res.status(400).send('Nombre debe tener al menos 3 caracteres');
-  //     return; //cuando es vacio sale del metodo
-  // }
+app.put("/api/users/:id", (req, res) => {
+  let user = existeUsuario(req.params.id);
+  if (!user){ 
+    res.status(404).send("Usuario no encontrado");
+    return;
+  }
+
+  const { error, value } = validarNombre(req.body.name);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
+  user.name = value.name;
+  res.send(user);
+
 });
 
 const port = process.env.PORT || 3000; // variable de entorno por si el puerto 3000 está ocupado
 app.listen(port, () => {
   console.log(`Escuchando el puerto ${port}`);
 });
+
+
+//funcion para verificar si el usuario existe
+function existeUsuario (id) {
+  return usuarios.find((u) => u.id === parseInt(id));
+}
+
+//funcion para validar el nombre
+function validarNombre (nombre) {
+  //validacion con joi
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(30).required(),
+  });
+  return schema.validate({ name: nombre });
+}

@@ -41,7 +41,7 @@ app.post("/api/users", (req, res) => {  //insertar nombre y id en el arreglo
       name: value.name //nombre que viene en el body enviado por postman
     };
     usuarios.push(user); //introduce el user en el arreglo
-    res.send(user); //envia el user
+    res.send(user); //envia respuesta al cliente
   } else {
       res.status(400).send(error.details[0].message);
   }
@@ -65,6 +65,17 @@ app.put("/api/users/:id", (req, res) => {
 
 });
 
+app.delete("/api/users/:id", (req, res) => {
+  let user = existeUsuario(req.params.id);
+  if (!user){
+    res.status(404).send("Usuario no encontrado");
+    return;
+  }
+  const index = usuarios.indexOf(user); //identifica el indice del usuario
+  usuarios.splice(index, 1); //eliminar 1 elmento del arreglo
+  res.send(usuarios); //enviar respuesta al cliente
+});
+
 const port = process.env.PORT || 3000; // variable de entorno por si el puerto 3000 está ocupado
 app.listen(port, () => {
   console.log(`Escuchando el puerto ${port}`);
@@ -84,3 +95,4 @@ function validarNombre (nombre) {
   });
   return schema.validate({ name: nombre });
 }
+

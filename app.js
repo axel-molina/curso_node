@@ -1,8 +1,21 @@
 const express = require("express");
+//const auth = require("./auth");
+//const logger = require("./logger");
 const Joi = require("@hapi/joi");
+var morgan = require('morgan');
 const app = express();
 
-app.use(express.json());
+app.use(express.json()); //recibe las peticiones del body
+app.use( express.urlencoded( { extended: true } ) ); //recibe las peticiones del cliente (web) y lo convierte a json
+app.use(express.static('public')); //Mostrar archivos estaticos en la carpeta public
+
+
+//app.use(auth);
+//app.use(logger);
+
+//Uso de middleware de terceros
+app.use(morgan('tiny')); //Hace un clg de las peticiones http (podria utilizarse para verificar el tiempo de respuesta)
+
 
 const usuarios = [
   {
@@ -11,7 +24,7 @@ const usuarios = [
   },
   {
     id: 2,
-    name: "Aldana",
+    name: "Lilian",
   },
   {
     id: 3,

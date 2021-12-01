@@ -1,21 +1,33 @@
+const debug = require('debug')('app:inicio');
+//const dbDebug = require("debug")("app:db");
 const express = require("express");
+const config = require("config");
 //const auth = require("./auth");
 //const logger = require("./logger");
 const Joi = require("@hapi/joi");
-var morgan = require('morgan');
+const morgan = require('morgan');
 const app = express();
 
 app.use(express.json()); //recibe las peticiones del body
 app.use( express.urlencoded( { extended: true } ) ); //recibe las peticiones del cliente (web) y lo convierte a json
 app.use(express.static('public')); //Mostrar archivos estaticos en la carpeta public
 
+//Configuraciones de entornos
+console.log("Aplicacion: " + config.get("nombre"));
+console.log("BD Server: " + config.get("configDB.host"));
+
 
 //app.use(auth);
 //app.use(logger);
 
 //Uso de middleware de terceros
+if(app.get('env') === 'development'){
 app.use(morgan('tiny')); //Hace un clg de las peticiones http (podria utilizarse para verificar el tiempo de respuesta)
+debug("Morgan habilitado...");
+}
 
+//Trabajos con la base de datos
+debug("Conectando a la base de datos...");
 
 const usuarios = [
   {
